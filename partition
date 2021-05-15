@@ -1,0 +1,163 @@
+Disk Storage Management in Linux
+
+The hard disk is a very important hardware resource in every computer since it stores operating system as well as all user data. How to manage them effectively is directly related to performance of the whole system. In Windows there is a utility called disk management which allows the administrator to create and manage the partition on hard disk drive. Similarly, Linux also gives some tools which you can use to manage the disk.
+
+What is a Partition?
+
+Partition is a logical container which is used to house filesystems, where operating systems, applications, and data is stored on. A single partition may span the entirety of a physical storage device.
+
+What is a File System?
+
+A file system provides a way of separating the data on the drive into individual pieces, which are the files. It also provides a way to store data about these files for example, their filenames, permissions, and other attributes. The file system also provides an index which is a list of the files on the drive and where they are located on the drive, so the operating system can see what’s on the drive in one place rather than combing through the entire drive to find a file.
+
+Your operating system needs to understand a file system so it can display its contents, open files, and save files to it. If your operating system doesn’t understand a file system, you may be able to install a file system driver that provides support or you just can’t use that file system with that operating system.
+
+Why Partition your Disk?
+
+The disk gets partitioned into smaller, separate pieces which can belong to different owners. In our case, Windows might own some and Linux will own others. On hard drives, the word “partition” it refers to the logically separated space.
+
+After creating a partition, the partition is formatted with a file system — like the NTFS file system on Windows drives, FAT32 file system for removable drives, HFS+ file system on Mac computers, and the ext3, ext4 file system on Linux. Files are then written to that file system on the partition.
+
+
+A standard partition is a method in Linux a drive/disk is splitted/partitioned.
+
+Disks topology in Linux is in the form of (sda, sdb, sdc, sdn..), from first disk to the last disk respectively, and can be partitioned in a standard method as (sda1, sda2, sdb1, sdb2, sdn1, sdn2, etc).
+
+To list all the disks with their partitions on a Linux system, use the command, “lsblk” (list blocks)
+
+
+Linux consider every thing as files. For example if there is one hard disk in a Linux system then it will be represented as hda (harddisk ‘A’). The second hard disk will be represented as hdb (harddisk ‘B’). The CD drive is represented as cdrom. Modern SATA and USB drives are represented like sda, sdb etc. Linux stores every device in /dev directory. So, the absolute path for first SATA hard drive will be /dev/sda. The path to cdrom will be /dev/cdrom. The first partition will be represented as /dev/sda1, the second as /dev/sda2, and so on.
+
+You can use the fdisk command line utility to create a new partition and to do other disk management operations. In GUI, disk partitioning in Linux is similar to that of Disk Management in Microsoft Windows. If you have experience, Windows also had fdisk utility based on MS DOS but that was not as much powerful as fdisk utility found in Linux.
+
+To list the current Partition Table of disk, use fdisk -l command.
+
+
+						
+				option 1)	Partition a Disk Using parted Command
+
+
+Follow the steps below to partition a disk in Linux by using the parted command.
+
+Step 1: List Partitions
+Before making a partition, list available storage devices and partitions. This action helps identify the storage device you want to partition.
+
+Run the following command with sudo to list storage devices and partitions:
+
+ parted -l
+
+
+
+The terminal prints out available storage devices with information about:
+
+Model – Model of the storage device.
+Disk – Name and size of the disk.
+Sector size – Logical and physical size of the memory. Not to be confused with available disk space.
+Partition Table – Partition table type (msdos, gpt, aix, amiga, bsd, dvh, mac, pc98, sun, and loop).
+Disk Flags – Partitions with information on size, type, file system, and flags.
+Partitions types can be:
+
+Primary – Holds the operating system files. Only four primary partitions can be created.
+Extended – Special type of partition in which more than the four primary partitions can be created.
+Logical – Partition that has been created inside of an extended partition.
+
+
+Step 2: Open Storage Disk
+Open the storage disk that you intend to partition by running the following command:
+
+ parted /dev/sdb
+
+
+Always specify the storage device. If you don’t specify a disk name, the disk is randomly selected. To change the disk to dev/sdb run:
+
+
+
+Step 3: Make a Partition Table
+Create a partition table before partitioning the disk. A partition table is located at the start of a hard drive and it stores data about the size and location of each partition.
+
+Partition table types are: aix, amiga, bsd, dvh, gpt, mac, ms-dos, pc98, sun, and loop.
+
+The create a partition table, enter the following:
+
+mklabel [partition_table_type]
+For example, to create a gpt partition table, run the following command:
+
+mklabel gpt
+Type Yes to execute:
+
+
+Step 4: Check Table
+Run the print command to review the partition table. The output displays information about the storage device:
+
+Create Partition
+Let’s make a new 1854MB-partition using the ext4 file system. The assigned disk start shall be 1MB and the disk end is at 1855MB.
+
+To create a new partition, enter the following:
+
+mkpart primary ext4 1MB 1855MB
+After that, run the print command to review information on the newly created partition. The information is displayed under the Disk Flags section:
+
+In a gpt partition table, the partition type is the mandatory partition name. In our example, primary is the name of the partition, not the partition type.
+
+To save your actions and quit, enter the quit command. Changes are saved automatically with this command.
+
+
+				Option 2: Partition a Disk Using fdisk Command
+
+
+Follow the steps below to partition a disk in Linux by using the fdisk command.
+
+Step 1: List Existing Partitions
+Run the following command to list all existing partitions:
+
+ fdisk -l
+The output contains information about storage disks and partitions:
+
+Step 2: Select Storage Disk
+Select the storage disk you want to create partitions on by running the following command:
+
+ fdisk /dev/sdb
+
+Step 3: Create a New Partition
+1. Run the  n command to create a new partition.
+
+2. Select the partition number by typing the default number (2).
+
+3. After that, you are asked for the starting and ending sector of your hard drive. It is best to type the default number in this section (3622912).
+
+4. The last prompt is related to the size of the partition. You can choose to have several sectors or to set the size in megabytes or gigabytes. Type +2GB to set the size of the partition to 2GB.
+
+A message appears confirming that the partition is created.
+
+
+Step 4: Write on Disk
+The system created the partition, but the changes are not written on the disk.
+
+1. To write the changes on disk, run the w command:
+
+2. Verify that the partition is created by running the following command:
+
+ fdisk -l
+
+Format the Partition
+Once a partition has been created with the parted of fdisk command, format it before using it.
+
+Format the partition by running the following command:
+
+ mkfs -t ext4 /dev/sdb1
+
+
+Mount the Partition
+To begin interacting with the disk, create a mount point and mount the partition to it.
+
+1. Create a mount point by running the following command:
+ mkdir -p /mt/sdb1
+
+2. After that, mount the partition by entering:
+
+ mount -t auto /dev/sbd1 /mt/sdb1
+
+The terminal does not print out an output if the commands are executed successfully.
+
+3. Verify if partition is mounted by using the df hT command:
+
