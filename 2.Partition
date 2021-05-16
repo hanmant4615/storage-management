@@ -159,5 +159,5 @@ To begin interacting with the disk, create a mount point and mount the partition
 
 The terminal does not print out an output if the commands are executed successfully.
 
-3. Verify if partition is mounted by using the df hT command:
+3. Verify if partition is mounted by using the df -h command:
 
